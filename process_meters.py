@@ -6,7 +6,10 @@ import os
 import csv
 import sys
 import time
+from datetime import datetime
+import calendar
 import yaml
+import pytz
 
 import logging_setup
 from httpPoster2 import HttpPoster, BMSreadConverter
@@ -51,6 +54,10 @@ try:
                                  post_thread_count=1,
                                  post_time_file=os.path.join(config_folder, 'run', '%s_last_post_time' % id)
                                 )
+
+    # Make a TimeZone variable for the timezone the data is in
+    tz = pytz.timezone(config['time_zone'])
+
 except:
     logging.exception('Error in Script Initialization.')
     sys.exit()
@@ -58,33 +65,52 @@ except:
 # Loop through files to process
 for fn in glob.glob(config['meter_files']):
 
-    # make dictionary keyed on meter number
-    # to hold readings
-    readings = {}
-    
-    with open(fn, 'rb') as csvfile:
-        for row in csv.reader(csvfile):
-            meter_num, ts_str, kwh = row[:3]
-            kwh = float(kwh)
-            # convert timestamp string to Unix Epoch time.
+    try:
+        # make dictionary keyed on meter number
+        # to hold readings
+        readings = {}
 
-            rec = (ts, meter_num, kwh)
+        # track # of errors
+        err_ct = 0
 
-            # add to list of readings
-            reading_list =  readings.get(meter_num, [])
-            reading_list.append(rec)
-            readings[meter_num] = reading_list
+        with open(fn, 'rb') as csvfile:
+            for row in csv.reader(csvfile):
+                try:
+                    meter_num, ts_str, kwh = row[:3]
+                    kw = float(kwh) * 4.0    # multiply by 4 to get average kW from kWh
 
-    # add readings to correct BMON poster
-    for meter_num, reading_list in readings.items():
-        poster_for_meter = posters[config['meter_to_bmon'][meter_num]]
-        poster_for_meter.add_readings(reading_list)
+                    # convert timestamp string to Unix Epoch time.
+                    dt = datetime.strptime(ts_str, "%Y-%m-%d %H:%M:%S")
+                    dt_aware = tz.localize(dt)
+                    ts = calendar.timegm(dt_aware.utctimetuple())
+                    # add 7.5 minutes to put timestamp in middle of interval
+                    ts += 7.5 * 60
 
-    # delete meter file
-    os.remove(fn)
+                    rec = (ts, meter_num, kw)
+
+                    # add to list of readings
+                    reading_list =  readings.get(meter_num, [])
+                    reading_list.append(rec)
+                    readings[meter_num] = reading_list
+
+                except:
+                    logging.exception('Error processing %s in %s' % (row, fn))
+                    err_ct += 1
+
+        # add readings to correct BMON poster
+        for meter_num, reading_list in readings.items():
+            poster_for_meter = posters[config['meter_to_bmon'][meter_num]]
+            poster_for_meter.add_readings(reading_list)
+
+        # delete meter file if requested and no errors occurred
+        if config['delete_after_process'] and err_ct==0:
+            os.remove(fn)
+
+    except:
+        logging.exception('Error processing %s'  % fn)
 
 # wait until BMON posters finish their work or stop 
-# making progress.
+# making progress on posting.
 last_remaining_count = 0
 while True:
     remaining_count = 0
@@ -97,4 +123,4 @@ while True:
 
     # wait a few seconds before checking again.  this needs to be long enough
     # so that posting progress can be made.
-    time.sleep(10)
+    time.sleep(5)

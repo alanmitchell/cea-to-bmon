@@ -1,4 +1,5 @@
 meter_files: /home/cea/meters/*.csv
+delete_after_process: False
 logging_level: INFO
 time_zone: US/Alaska
 bmon_servers:
