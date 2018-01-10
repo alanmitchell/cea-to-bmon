@@ -1,5 +1,6 @@
 meter_files: /home/cea/meters/*.csv
-days_before_delete: 7
+logging_level: INFO
+time_zone: US/Alaska
 bmon_servers:
   ahfc:
     url: https://bms.ahfc.us/readingdb/reading/store/

@@ -139,9 +139,10 @@ class HttpPoster:
             self.post_Q.append(reading_data)
 
     def items_remaining(self):
-        """Returns the number of items remaining in the queue
+        """Returns the number of items remaining in the queue, including
+        those currently being processed.
         """
-        return len(self.post_Q)
+        return len(self.post_Q) + self.post_Q.processing_count()
 
 
 class PostWorker(threading.Thread):

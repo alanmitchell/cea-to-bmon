@@ -6,6 +6,8 @@ again.  'persistent' means saved to disk so items persist between runs of the
 process.
 Modified from the code presented at (reliability added):  
     http://flask.pocoo.org/snippets/88/
+Also modified to provide a method to return the number of items in the
+'processing' table.
 
 Copyright (c) 2014, Alaska Housing Finance Corporation. All Rights Reserved.
 
@@ -124,6 +126,7 @@ class SqliteReliableQueue(object):
     _processing_del = 'DELETE FROM processing WHERE id = ?'
     _processing_clear = 'DELETE FROM processing'
     _processing_iterate = 'SELECT id, item FROM processing'
+    _processing_count = 'SELECT COUNT(*) FROM processing'
 
     def __init__(self, path):
         self.path = os.path.abspath(path)
@@ -229,4 +232,10 @@ class SqliteReliableQueue(object):
         with self._get_conn() as conn:
             for id, obj_buffer in conn.execute(self._processing_iterate):
                 yield loads(str(obj_buffer))
-        
+
+    def processing_count(self):
+        """Returns the number of items in the processing list.
+        """
+        with self._get_conn() as conn:
+            l = conn.execute(self._processing_count).next()[0]
+        return l
