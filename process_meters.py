@@ -8,6 +8,7 @@ import sys
 import time
 from datetime import datetime
 import calendar
+import sqlite3
 import yaml
 import pytz
 
@@ -58,6 +59,16 @@ try:
     # Make a TimeZone variable for the timezone the data is in
     tz = pytz.timezone(config['time_zone'])
 
+    # Make a dictionary mapping meter numbers to BMON server ID.  This comes from a
+    # SQLite database identified in config file.
+    db_fn = config['meter_number_db']
+    conn = sqlite3.connect(db_fn)
+    with conn:
+        cur = conn.cursor()
+        cur.execute('SELECT meter_number, bmon_id from meters')
+        rows = cur.fetchall()
+        meter_to_bmon = dict(rows)
+
 except:
     logging.exception('Error in Script Initialization.')
     sys.exit()
@@ -99,7 +110,7 @@ for fn in glob.glob(config['meter_files']):
 
         # add readings to correct BMON poster
         for meter_num, reading_list in readings.items():
-            poster_for_meter = posters[config['meter_to_bmon'][meter_num]]
+            poster_for_meter = posters[meter_to_bmon[meter_num]]
             poster_for_meter.add_readings(reading_list)
 
         # delete meter file if requested and no errors occurred
