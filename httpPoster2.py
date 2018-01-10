@@ -92,9 +92,9 @@ import sqlite_queue
 # Disable warning messages that result from having to use Python 2.7.3 instead of
 # 2.7.9 and from having to disable SSL verification due to problems with Python 2.7.3
 # in conjunction with urllib3.
-from requests.packages.urllib3.exceptions import InsecureRequestWarning, InsecurePlatformWarning
-requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-requests.packages.urllib3.disable_warnings(InsecurePlatformWarning)
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
 
 class HttpPoster:
     """A class to post readings to a URL via HTTP.  The readings to be posted
