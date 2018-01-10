@@ -1,7 +1,9 @@
 # PyCharm files
 .idea
 
+# Test notebooks and scripts
 test_cea.ipynb
+test_cea.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
