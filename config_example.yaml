@@ -1,0 +1,12 @@
+meter_files: /home/cea/meters/*.csv
+days_before_delete: 7
+bmon_servers:
+  ahfc:
+    url: https://bms.ahfc.us/readingdb/reading/store/
+    store_key: xyz
+  an:
+    url: https://bmon.analysisnorth.com/readingdb/reading/store/
+    store_key: def
+meter_to_bmon:
+  L13776533: an
+  L13529812: ahfc
