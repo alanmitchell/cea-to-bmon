@@ -1,5 +1,5 @@
 meter_files: /home/cea/meters/*.csv
-delete_after_process: False
+delete_after_process: True
 meter_number_db: /home/cea/meter_db/meters.sqlite
 logging_level: INFO
 time_zone: US/Alaska
