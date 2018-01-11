@@ -1,4 +1,7 @@
 #!/usr/local/bin/python2.7
+"""Script to post 15 minute electricity consumption readings from
+Chugach Electric meter files to BMON servers.
+"""
 
 import glob
 import logging
