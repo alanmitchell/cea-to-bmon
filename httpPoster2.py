@@ -84,7 +84,7 @@ TO DO:
         processing queue.
 """
 
-import time, sys
+import time
 import threading, json, logging
 import requests
 import sqlite_queue
@@ -143,6 +143,21 @@ class HttpPoster:
         those currently being processed.
         """
         return len(self.post_Q) + self.post_Q.processing_count()
+
+    def wait_until_done(self, wait_time=5):
+        """wait until this poster finishes its work or stops
+        making progress on posting.
+        """
+        last_remaining_count = 0
+        while True:
+            remaining_count = self.items_remaining()
+            if remaining_count == 0 or remaining_count == last_remaining_count:
+                break
+            last_remaining_count = remaining_count
+
+            # wait a few seconds before checking again.  this needs to be long enough
+            # so that posting progress can be made.
+            time.sleep(wait_time)
 
 
 class PostWorker(threading.Thread):

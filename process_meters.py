@@ -8,7 +8,6 @@ import logging
 import os
 import csv
 import sys
-import time
 from datetime import datetime
 import calendar
 import sqlite3
@@ -123,18 +122,7 @@ for fn in glob.glob(config['meter_files']):
     except:
         logging.exception('Error processing %s'  % fn)
 
-# wait until BMON posters finish their work or stop 
+# wait until all BMON posters finish their work or stop
 # making progress on posting.
-last_remaining_count = 0
-while True:
-    remaining_count = 0
-    for id, poster in posters.items():
-        remaining_count += poster.items_remaining()
-
-    if remaining_count == 0 or remaining_count == last_remaining_count:
-        break
-    last_remaining_count = remaining_count
-
-    # wait a few seconds before checking again.  this needs to be long enough
-    # so that posting progress can be made.
-    time.sleep(5)
+for poster in posters.values():
+    poster.wait_until_done()
