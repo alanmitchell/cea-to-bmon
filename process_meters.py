@@ -90,6 +90,8 @@ for fn in glob.glob(config['meter_files']):
             for row in csv.reader(csvfile):
                 try:
                     meter_num, ts_str, kwh = row[:3]
+                    if len(kwh.strip())==0:
+                        continue
                     kw = float(kwh) * 4.0    # multiply by 4 to get average kW from kWh
 
                     # convert timestamp string to Unix Epoch time.
