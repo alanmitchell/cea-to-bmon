@@ -114,8 +114,12 @@ for fn in glob.glob(config['meter_files']):
 
         # add readings to correct BMON poster
         for meter_num, reading_list in readings.items():
-            poster_for_meter = posters[meter_to_bmon[meter_num]]
-            poster_for_meter.add_readings(reading_list)
+            if meter_num in meter_to_bmon:
+                poster_for_meter = posters[meter_to_bmon[meter_num]]
+                poster_for_meter.add_readings(reading_list)
+            else:
+                logging.error('Meter Number {} not in Meter database.'.format(meter_num))
+                err_ct += 1
 
         # delete meter file if requested and no errors occurred
         if config['delete_after_process'] and err_ct==0:
