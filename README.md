@@ -1,6 +1,6 @@
 # cea-to-bmon
 
-***Deprecated:*** Please use the [file-to-bmon](https://github.com/alanmitchell/file-to-bmon) with the `cea` reader instead.
+***Deprecated:*** Please use the [file-to-bmon](https://github.com/alanmitchell/file-to-bmon) project with the `cea` reader instead.
 
 Script to post data from Chugach Electric Meter files to BMON servers.
 Different meters can post data to different BMON servers.  This script
